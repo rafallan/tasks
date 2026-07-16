@@ -18,11 +18,17 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolesAndPermissionsSeeder::class);
 
-        $admin = User::query()->firstOrCreate(['email' => 'test@example.com'], [
-            'name' => 'Test User',
+        $admin = User::query()->firstOrCreate(['email' => 'admin@example.com'], [
+            'name' => 'Admin',
             'password' => Hash::make('password'),
+            'ativo' => true,
         ]);
 
-        $admin->assignRole('Admin');
+        if ($admin->email_verified_at === null) {
+            $admin->email_verified_at = now();
+            $admin->save();
+        }
+
+        $admin->syncRoles(['Admin']);
     }
 }

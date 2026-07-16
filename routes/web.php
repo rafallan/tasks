@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\RoleController as AdminRoleController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ChecklistTarefaController;
 use App\Http\Controllers\ComentarioTarefaController;
 use App\Http\Controllers\DashboardController;
@@ -24,6 +26,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('tarefas/{tarefa}/checklist', [ChecklistTarefaController::class, 'store'])->name('tarefas.checklist.store');
     Route::patch('tarefas/{tarefa}/checklist/{item}', [ChecklistTarefaController::class, 'update'])->name('tarefas.checklist.update');
     Route::post('tarefas/{tarefa}/comentarios', [ComentarioTarefaController::class, 'store'])->name('tarefas.comentarios.store');
+
+    Route::middleware('admin')->prefix('admin')->as('admin.')->group(function (): void {
+        Route::middleware('can:usuarios.visualizar')
+            ->resource('usuarios', AdminUserController::class)
+            ->parameters(['usuarios' => 'user'])
+            ->only(['index', 'store', 'update']);
+
+        Route::middleware('can:papeis.gerenciar')
+            ->resource('papeis', AdminRoleController::class)
+            ->parameters(['papeis' => 'role'])
+            ->only(['index', 'store', 'update']);
+    });
 });
 
 require __DIR__.'/settings.php';
